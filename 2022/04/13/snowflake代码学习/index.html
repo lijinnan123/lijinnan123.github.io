@@ -1,0 +1,228 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>snowflake代码学习 | zerolord</title><meta name="author" content="zerolord"><meta name="copyright" content="zerolord"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="代码分析transforms3d这还有个点云里面会用到的库，喜欢这个库说的作用：“基于Eigen的坐标转换库-TransForms3d”。看来这个就是坐标转换东西。 发现snowflake和PoinTr里面都有一个文件（名字一样，但是里面的函数不一样），叫做data_transforms.py。我觉得功能应该是对数据进行处理。 12345# 模型中只用到了两个函数，一个是zoom.zfdir2ma">
+<meta property="og:type" content="article">
+<meta property="og:title" content="snowflake代码学习">
+<meta property="og:url" content="http://example.com/2022/04/13/snowflake%E4%BB%A3%E7%A0%81%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="zerolord">
+<meta property="og:description" content="代码分析transforms3d这还有个点云里面会用到的库，喜欢这个库说的作用：“基于Eigen的坐标转换库-TransForms3d”。看来这个就是坐标转换东西。 发现snowflake和PoinTr里面都有一个文件（名字一样，但是里面的函数不一样），叫做data_transforms.py。我觉得功能应该是对数据进行处理。 12345# 模型中只用到了两个函数，一个是zoom.zfdir2ma">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg">
+<meta property="article:published_time" content="2022-04-13T02:43:09.000Z">
+<meta property="article:modified_time" content="2022-04-17T14:05:18.160Z">
+<meta property="article:author" content="zerolord">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/04/13/snowflake%E4%BB%A3%E7%A0%81%E5%AD%A6%E4%B9%A0/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'snowflake代码学习',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-04-17 22:05:18'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">8</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">zerolord</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">snowflake代码学习</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-04-13T02:43:09.000Z" title="发表于 2022-04-13 10:43:09">2022-04-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-04-17T14:05:18.160Z" title="更新于 2022-04-17 22:05:18">2022-04-17</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="snowflake代码学习"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><h3 id="transforms3d"><a href="#transforms3d" class="headerlink" title="transforms3d"></a><a target="_blank" rel="noopener" href="http://matthew-brett.github.io/transforms3d/">transforms3d</a></h3><p>这还有个点云里面会用到的库，喜欢这个库说的作用：“基于Eigen的坐标转换库-TransForms3d”。看来这个就是坐标转换东西。</p>
+<p>发现snowflake和PoinTr里面都有一个文件（名字一样，但是里面的函数不一样），叫做data_transforms.py。我觉得功能应该是对数据进行处理。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 模型中只用到了两个函数，一个是zoom.zfdir2mat，另一个是axangles.axangle2mat。</span><br><span class="line"></span><br><span class="line"># 一个是用来镜像的，一个是用来旋转的。RandomMirrorPoints，RandomRotatePoints。</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>看到一种奇怪的用法：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/165245990"><code>__call__</code></a></p>
+<p>感觉像是回调函数，因为data_transforms.py里面都是这种一个class里面只有一个<code>__init__</code>和一个<code>__call__</code>函数，然后调用的地方都是以这样的形式调用的：</p>
+<img src="C:/Users/dell/AppData/Roaming/Typora/typora-user-images/image-20220413160902525.png" alt="image-20220413160902525" style="zoom:50%;" />
+
+<p>所有的函数都是可调用对象。</p>
+<p>一个类实例也可以变成一个可调用对象，只需要实现一个特殊方法<code>__call__()</code>。</p>
+<p>我们写神经网络的代码的时候，一些网络结构的设置，也最好放在\ __ init__ ()方法中。</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/dongjinkun/article/details/114575998">(2条消息) 解惑（一） —– super(XXX, self).<strong>init</strong>()到底是代表什么含义_奋斗丶的博客-CSDN博客</a></p>
+<h4 id="tensorboardX库"><a href="#tensorboardX库" class="headerlink" title="tensorboardX库"></a>tensorboardX库</h4><p>from tensorboardX import SummaryWriter</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">我们都知道tensorflow框架可以使用tensorboard这一高级的可视化的工具，为了使用tensorboard这一套完美的可视化工具，未免可以将其应用到Pytorch中，用于Pytorch的可视化。</span><br><span class="line">Pytorch可以使用tensorboardX可视化。</span><br><span class="line">（tqdm是进度条）</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/Norsaa/article/details/105564931"><code>__getitem__</code>方法</a></li>
+</ol>
+<p>在python中<code>__getitem__(self,key)</code>方法被称为魔法方法，这个方法返回所给键对应的值。当对象是序列时，键是整数。当对象是映射时（字典），键是任意值。</p>
+<p>使用场景：在定义类时，如果希望能按照键取类的值，则需要定义__getitem__方法</p>
+<p>目的：如果给类定义了__getitem__方法，则当按照键取值时，可以直接返回__getitem__方法执行的结果。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">class Fib():                  #定义类Fib</span><br><span class="line">    def __init__(self,start=0,step=1):</span><br><span class="line">        self.step=step</span><br><span class="line">    def __getitem__(self, key): #定性__getitem__函数，key为类Fib的键</span><br><span class="line">            a = key+self.step</span><br><span class="line">            return a          #当按照键取值时，返回的值为a</span><br><span class="line"></span><br><span class="line">s=Fib()</span><br><span class="line">s[1]  #返回2 ，因为类有 __getitem__方法，所以可以直接通过键来取对应的值</span><br></pre></td></tr></table></figure>
+
+<p>如果不给类Fib()定义 __getitem__方法，则会无法通过键来获取对应的值</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">class Fib():                  #定义类Fib</span><br><span class="line">    def __init__(self,start=0,step=1):</span><br><span class="line">        self.step=step</span><br><span class="line">s=Fib()</span><br><span class="line">s[1] </span><br></pre></td></tr></table></figure>
+
+
+<p>返回：TypeError: ‘Fib’ object does not support indexing</p>
+<p>这种方法可以让使用者非常方便的取值，我们经常使用列表和字典，都有该方法。</p>
+<ol start="3">
+<li>点云读取方式</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="http://www.4k8k.xyz/article/u014311125/118338518">http://www.4k8k.xyz/article/u014311125/118338518</a></p>
+<h2 id="注意力机制"><a href="#注意力机制" class="headerlink" title="注意力机制"></a>注意力机制</h2><p>注意力比池化层就是</p>
+<h2 id="PCN摹写"><a href="#PCN摹写" class="headerlink" title="PCN摹写"></a>PCN摹写</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/zkq_1986/article/details/85249220">dataloader</a></p>
+<h2 id="可能有用的东西"><a href="#可能有用的东西" class="headerlink" title="可能有用的东西"></a>可能有用的东西</h2><blockquote>
+<p>首先要给自己纠正下，PointNet和PointNet++是两件事，意识里不要老把这俩混了。</p>
+</blockquote>
+<p>算是一点改进思路：</p>
+<ol>
+<li>数据增强，方法在<a target="_blank" rel="noopener" href="https://github.com/DylanWusee/pointconv_pytorch%E7%9A%84provider.py%E9%87%8C%E9%9D%A2%E3%80%82">https://github.com/DylanWusee/pointconv_pytorch的provider.py里面。</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.runoob.com/python3/python3-assert.html">https://www.runoob.com/python3/python3-assert.html</a> python的assert断言函数</li>
+</ol>
+<h2 id="nn模块具体函数"><a href="#nn模块具体函数" class="headerlink" title="nn模块具体函数"></a>nn模块具体函数</h2><h4 id="nn-Conv1d"><a href="#nn-Conv1d" class="headerlink" title="nn.Conv1d"></a>nn.Conv1d</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CLASS torch.nn.Conv1d(in_channels, out_channels, kernel_size, stride=<span class="number">1</span>, padding=<span class="number">0</span>, dilation=<span class="number">1</span>, groups=<span class="number">1</span>, bias=<span class="literal">True</span>, padding_mode=<span class="string">&#x27;zeros&#x27;</span>, device=<span class="literal">None</span>, dtype=<span class="literal">None</span>) <span class="comment"># 前三个参数没有默认值，就是输入通道数，输出通道数，kernel的大小</span></span><br><span class="line"><span class="comment"># 使用的时候输入的是数据</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="nn-BatchNorm1d"><a href="#nn-BatchNorm1d" class="headerlink" title="nn.BatchNorm1d"></a>nn.BatchNorm1d</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CLASS torch.nn.BatchNorm1d(num_features, eps=<span class="number">1e-05</span>, momentum=<span class="number">0.1</span>, affine=<span class="literal">True</span>, track_running_stats=<span class="literal">True</span>, device=<span class="literal">None</span>, dtype=<span class="literal">None</span>) <span class="comment"># num_features來自大小為 (N,C,L) 的預期輸入或來自大小為 (N,C) 的輸入的 C</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="Dropout"><a href="#Dropout" class="headerlink" title="Dropout"></a>Dropout</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CLASS torch.nn.Dropout(p=<span class="number">0.5</span>, inplace=<span class="literal">False</span>) <span class="comment"># 当前Dropout被大量利用于全连接网络，而且一般认为设置为0.5或者0.3，而在卷积网络隐藏层中由于卷积自身的稀疏化以及稀疏化的ReLu函数的大量使用等原因，Dropout策略在卷积网络隐藏层中使用较少。总体而言，Dropout是一个超参，需要根据具体的网络、具体的应用领域进行尝试。</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="torch-nn-functional-relu"><a href="#torch-nn-functional-relu" class="headerlink" title="torch.nn.functional.relu"></a>torch.nn.functional.relu</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CLASS torch.nn.ReLU(inplace=<span class="literal">False</span>) <span class="comment"># Input: (*)(∗), where *∗ means any number of dimensions. Output: (*)(∗), same shape as the input. </span></span><br></pre></td></tr></table></figure>
+
+<h4 id="torch-nn-functional-log-softmax"><a href="#torch-nn-functional-log-softmax" class="headerlink" title="torch.nn.functional.log_softmax"></a>torch.nn.functional.log_softmax</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.nn.functional.log_softmax(<span class="built_in">input</span>, dim=<span class="literal">None</span>, _stacklevel=<span class="number">3</span>, dtype=<span class="literal">None</span>) <span class="comment"># 应用 softmax，后跟对数。虽然在数学上等价于 log(softmax(x))，但单独执行这两个操作更慢且数值不稳定。此函数使用替代公式来正确计算输出和梯度。</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>对n维输入张量运用Softmax函数，将张量的每个元素缩放到（0,1）区间且和为1</p>
+<p>dim:指明维度，dim&#x3D;0表示按列计算；dim&#x3D;1表示按行计算。默认dim的方法已经弃用了，最好声明dim，否则会警告</p>
+<p>一维使用dim&#x3D;1报错</p>
+</blockquote>
+<h4 id="torch-permute"><a href="#torch-permute" class="headerlink" title="torch.permute"></a>torch.permute</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.Tensor.permute(Python method, <span class="keyword">in</span> torch.Tensor) <span class="comment"># Tensor.permute(a,b,c,d, ...)：permute函数可以对任意高维矩阵进行转置，但没有 torch.permute() 这个调用方式， 只能 Tensor.permute()：</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>其实tensor.permute功能类似于np.transpose，而np.transpose的描述就是Permute the dimensions of an array.虽然torch这边命名更合理一些，但是用惯了np过来的容易被坑那么一下。</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">torch.rand()</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>torch.rand(<span class="number">4</span>)</span><br><span class="line">tensor([ <span class="number">0.5204</span>,  <span class="number">0.2503</span>,  <span class="number">0.3525</span>,  <span class="number">0.5673</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>torch.rand(<span class="number">2</span>, <span class="number">3</span>)</span><br><span class="line">tensor([[ <span class="number">0.8237</span>,  <span class="number">0.5781</span>,  <span class="number">0.6879</span>],</span><br><span class="line">        [ <span class="number">0.3816</span>,  <span class="number">0.7249</span>,  <span class="number">0.0998</span>]])</span><br><span class="line">        </span><br><span class="line"><span class="comment"># 看来里面放几个数字就是几维，尝试了一下，四维也行。</span></span><br></pre></td></tr></table></figure>
+
+<p>我目前要解决的问题是得到输出数据的维数，那么就要得到输入数据的维数，方法有两个：</p>
+<ol>
+<li><p>看论文里如何</p>
+</li>
+<li><p>看PointNet++代码里关于数据加载的那里</p>
+</li>
+</ol>
+<blockquote>
+<p>2022.4.17：</p>
+<p>没事，不要自怨自艾，一般一周才能真正弄明白一篇论文呢，你这没啥时间，要是弄不明白，是正常的，弄明白了是很厉害的。</p>
+<p>没事，问别人就是要厚脸皮一点，你不是想学着厚脸皮吗？就全方位厚脸皮一点，先问起来，然后再学着如何有效良好地沟通。</p>
+<p>书到用时方恨少，知耻后勇，</p>
+</blockquote>
+<h3 id="torchvision库学习"><a href="#torchvision库学习" class="headerlink" title="torchvision库学习"></a>torchvision库学习</h3></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">zerolord</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/04/13/snowflake%E4%BB%A3%E7%A0%81%E5%AD%A6%E4%B9%A0/">http://example.com/2022/04/13/snowflake%E4%BB%A3%E7%A0%81%E5%AD%A6%E4%B9%A0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">zerolord</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/04/08/%E5%81%9A%E7%9A%84%E6%9C%80%E4%B8%8D%E6%83%B3%E5%81%9A%E7%9A%84%E4%BA%8B/"><img class="next-cover" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">做的最不想做的事</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">zerolord</div><div class="author-info__description">饮马江湖步流星，青史留英名</div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">8</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">代码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#transforms3d"><span class="toc-number">1.1.</span> <span class="toc-text">transforms3d</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#tensorboardX%E5%BA%93"><span class="toc-number">1.1.1.</span> <span class="toc-text">tensorboardX库</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6"><span class="toc-number">2.</span> <span class="toc-text">注意力机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PCN%E6%91%B9%E5%86%99"><span class="toc-number">3.</span> <span class="toc-text">PCN摹写</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AF%E8%83%BD%E6%9C%89%E7%94%A8%E7%9A%84%E4%B8%9C%E8%A5%BF"><span class="toc-number">4.</span> <span class="toc-text">可能有用的东西</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nn%E6%A8%A1%E5%9D%97%E5%85%B7%E4%BD%93%E5%87%BD%E6%95%B0"><span class="toc-number">5.</span> <span class="toc-text">nn模块具体函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#nn-Conv1d"><span class="toc-number">5.0.1.</span> <span class="toc-text">nn.Conv1d</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#nn-BatchNorm1d"><span class="toc-number">5.0.2.</span> <span class="toc-text">nn.BatchNorm1d</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Dropout"><span class="toc-number">5.0.3.</span> <span class="toc-text">Dropout</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#torch-nn-functional-relu"><span class="toc-number">5.0.4.</span> <span class="toc-text">torch.nn.functional.relu</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#torch-nn-functional-log-softmax"><span class="toc-number">5.0.5.</span> <span class="toc-text">torch.nn.functional.log_softmax</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#torch-permute"><span class="toc-number">5.0.6.</span> <span class="toc-text">torch.permute</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#torchvision%E5%BA%93%E5%AD%A6%E4%B9%A0"><span class="toc-number">5.1.</span> <span class="toc-text">torchvision库学习</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/04/13/snowflake%E4%BB%A3%E7%A0%81%E5%AD%A6%E4%B9%A0/" title="snowflake代码学习"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="snowflake代码学习"/></a><div class="content"><a class="title" href="/2022/04/13/snowflake%E4%BB%A3%E7%A0%81%E5%AD%A6%E4%B9%A0/" title="snowflake代码学习">snowflake代码学习</a><time datetime="2022-04-13T02:43:09.000Z" title="发表于 2022-04-13 10:43:09">2022-04-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/%E5%81%9A%E7%9A%84%E6%9C%80%E4%B8%8D%E6%83%B3%E5%81%9A%E7%9A%84%E4%BA%8B/" title="做的最不想做的事"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="做的最不想做的事"/></a><div class="content"><a class="title" href="/2022/04/08/%E5%81%9A%E7%9A%84%E6%9C%80%E4%B8%8D%E6%83%B3%E5%81%9A%E7%9A%84%E4%BA%8B/" title="做的最不想做的事">做的最不想做的事</a><time datetime="2022-04-08T08:15:06.000Z" title="发表于 2022-04-08 16:15:06">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/04/%E4%B8%80%E4%BA%9B%E8%AF%BB%E5%90%8E%E6%84%9F-%E5%90%90%E6%A7%BD/" title="一些读后感&amp;吐槽"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="一些读后感&amp;吐槽"/></a><div class="content"><a class="title" href="/2022/04/04/%E4%B8%80%E4%BA%9B%E8%AF%BB%E5%90%8E%E6%84%9F-%E5%90%90%E6%A7%BD/" title="一些读后感&amp;吐槽">一些读后感&amp;吐槽</a><time datetime="2022-04-04T11:13:22.000Z" title="发表于 2022-04-04 19:13:22">2022-04-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/30/%E5%A4%9A%E5%B9%B3%E5%8F%B0%E5%88%86%E4%BA%AB%E4%B9%8B%E7%B1%BB%E7%9A%84/" title="多平台分享之类的"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="多平台分享之类的"/></a><div class="content"><a class="title" href="/2022/03/30/%E5%A4%9A%E5%B9%B3%E5%8F%B0%E5%88%86%E4%BA%AB%E4%B9%8B%E7%B1%BB%E7%9A%84/" title="多平台分享之类的">多平台分享之类的</a><time datetime="2022-03-30T09:41:18.000Z" title="发表于 2022-03-30 17:41:18">2022-03-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/27/%E6%96%B0%E9%97%BB%E7%90%86%E8%AE%BA%E5%8D%81%E8%AE%B2%E4%B9%A6%E6%91%98/" title="新闻理论十讲书摘"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="新闻理论十讲书摘"/></a><div class="content"><a class="title" href="/2022/03/27/%E6%96%B0%E9%97%BB%E7%90%86%E8%AE%BA%E5%8D%81%E8%AE%B2%E4%B9%A6%E6%91%98/" title="新闻理论十讲书摘">新闻理论十讲书摘</a><time datetime="2022-03-27T05:16:15.000Z" title="发表于 2022-03-27 13:16:15">2022-03-27</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By zerolord</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
